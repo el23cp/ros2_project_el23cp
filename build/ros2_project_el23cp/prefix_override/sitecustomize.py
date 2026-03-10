@@ -1,0 +1,3 @@
+import sys
+sys.real_prefix = sys.prefix
+sys.prefix = sys.exec_prefix = '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp'

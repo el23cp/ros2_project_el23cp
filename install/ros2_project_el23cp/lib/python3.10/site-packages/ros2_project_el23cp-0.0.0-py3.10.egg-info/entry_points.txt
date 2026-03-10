@@ -1,0 +1,6 @@
+[console_scripts]
+first_step = ros2_project_el23cp.first_step:main
+fourth_step = ros2_project_el23cp.fourth_step:main
+second_step = ros2_project_el23cp.second_step:main
+third_step = ros2_project_el23cp.third_step:main
+
