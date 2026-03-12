@@ -1,0 +1,26 @@
+# https://docs.nav2.org/tutorials/docs/using_collision_monitor.html
+
+polygons: ["StoppingZone", "PolygonSlow"]
+StoppingZone:
+  type: "polygon"
+  points: "[[0.3, 0.3], [0.3, -0.3], [0.0, -0.3], [0.0, 0.3]]"
+  action_type: "stop"
+  min_points: 4  # max_points: 3 for Humble
+  #slowdown_ratio: 0.3
+  visualize: True
+  polygon_pub_topic: "robot_stop"
+
+
+PolygonSlow:
+  type: "polygon"
+  points: "[[0.6, 0.4], [0.6, -0.4], [0.0, -0.4], [0.0, 0.4]]"
+  action_type: "slowdown"
+  min_points: 4  # max_points: 3 for Humble
+  slowdown_ratio: 0.3
+  visualize: True
+  polygon_pub_topic: "polygon_slowdown" #change
+
+observation_sources: ["scan"]
+scan:
+  type: "scan"
+  topic: "scan"
