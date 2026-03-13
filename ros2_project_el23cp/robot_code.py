@@ -106,7 +106,8 @@ class GoToPose(Node):
         self.get_result_future = goal_handle.get_result_async()
         self.get_result_future.add_done_callback(self.get_result_callback)
 
-    def get_result_callback(self, future):
+    def get_result_callback(self, future):  
+    
         result = future.result().result
         self.get_logger().info(f'Navigation result: {result}')
 
@@ -114,7 +115,7 @@ class GoToPose(Node):
         feedback = feedback_msg.feedback
         # NOTE: if you want, you can use the feedback while the robot is moving.
         #       uncomment to suit your need.
-
+        '''
         ## Access the current pose
         current_pose = feedback_msg.feedback.current_pose
         position = current_pose.pose.position
@@ -124,49 +125,79 @@ class GoToPose(Node):
         navigation_time = feedback_msg.feedback.navigation_time
         distance_remaining = feedback_msg.feedback.distance_remaining
 
-        ## Print or process the feedback data
+        ## Paw)rint or process the feedback data
         self.get_logger().info(f'Current Pose: [x: {position.x}, y: {position.y}, z: {position.z}]')
         self.get_logger().info(f'Distance Remaining: {distance_remaining}')
-
-
+        '''
+        
+class Explorer(Node):
+    def __init__(self):
+        super().__init__('explorer')
+        self.go_to_pose = GoToPose()
+        self.motion = Motion()
+        self.state = "go_to_corner"
+        self.current_x
+        self.current_y
+        self.direction, self.row()
+        self.create_timer(0.1, self.loop)
+        
+    def go_to_corner(self, x, y, yaw):
+        self.go_to_pose.send_goal(x, y, yaw)# Defining main()
+    
+    def robot_check(self):
+        if self.state == "go to corner":
+            self.x_val = -9.8
+            self.y_val = -15.0
+            self.state = "waiting"
+            return
+        
+        if self.state == "waiting":
+            
+            self.x_val = -9.8
+            self.y_val = -15.0
+            return
+                        
+            
 # Defining main()
 def main(args=None):
-    # from go_to_pos
-    
     rclpy.init(args=args)
     
-    go_to_pose = GoToPose()
-    go_to_pose.send_goal(0.0, 0.0, 0.0024)  # example coordinates
-    rclpy.spin(go_to_pose)
-    
-    '''  
-    #from going foward
-    def signal_handler(sig, frame):
-        motion.stop()
-        rclpy.shutdown()
-
-    rclpy.init(args=None)
-    motion = Motion()
-
-    signal.signal(signal.SIGINT, signal_handler)
-    thread = threading.Thread(target=rclpy.spin, args=(motion,), daemon=True)
-    thread.start()
-
-    try:
-        while rclpy.ok():
-            #if no obstacle within (___) pixels
-            
-            motion.rotate_on_spot()
-            motion.walk_forward()
-            #motion.rotate_on_spot()
-                
-            
-            motion.stop()
-            motion.rotate_on_spot()   
-            
-            # first_walker.walk_backward()
-    except ROSInterruptException:
-        pass
+    explorer = Explorer()
+      
+    rclpy.spin(explorer)
+    # from go_to_pos
     '''
+    rclpy.init(args=args)
+
+    go_to_pose = GoToPose()
+    motion = Motion()
+    # go to corner: 
+    x_val = -9.8
+    y_val = 15.0
+    start_yaw = 0.0024 
+    
+    go_to_pose.send_goal(x_val, y_val, start_yaw)  # example coordinates
+    rclpy.spin_once(go_to_pose)
+    
+    
+    # move 5m x-way then scan every 5m
+
+    scan = motion.rotate_on_spot()
+    
+    # checks if it can see any blocks. 
+    
+    # if all 3, then walk to blue
+    
+    # if not "find blue/red/green"
+    #checks if all 3, then walk to blue
+    # if not find remaining colour
+    # checks if all 3, if yes, walk to blue, if not walk find last one,
+    # find method using grid below
+    while x_val < 9.95 & y_val < 6:
+        new_x = x_val + 5
+        new_y = y_val - 5
+        go_to_pose.send_goal(new_x, new_y, start_yaw)
+    '''
+
 if __name__ == '__main__':
     main()
