@@ -6,6 +6,10 @@ load map:
 ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True map:=$HOME/ros2_ws/src/ros2_project_el23cp/map/map.yaml
 
 to launch new/updated code: ALWAYS colcon build  && source ~/.bashrc
+
+ros2 run ros2_project_el23cp robot_code
+
+to project directory: 
 '''
 
 #FORWARD THEN SCANNING imports
@@ -17,7 +21,7 @@ from rclpy.exceptions import ROSInterruptException
 import signal
 
 #GOING TO POSITION imports
-import rclpy
+#import rclpy
 from rclpy.action import ActionClient
 #from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
@@ -131,9 +135,8 @@ def main(args=None):
     
     rclpy.init(args=args)
     
-    
     go_to_pose = GoToPose()
-    go_to_pose.send_goal(3.5, -8.5, 0.0024)  # example coordinates
+    go_to_pose.send_goal(0.0, 0.0, 0.0024)  # example coordinates
     rclpy.spin(go_to_pose)
     
     '''  
