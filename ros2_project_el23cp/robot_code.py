@@ -165,10 +165,6 @@ class Explorer(Node):
 
     def checking_colours(self):
         self.get_logger().info('Looking for colours')
-        
-        self.blue_found = True
-        self.red_found = True
-        self.green_found = False
 
         if self.blue_found == True:
             self.count += 1
@@ -212,6 +208,7 @@ class Explorer(Node):
             # self.go_to_pose.send_goal(position x, position y, 0.0024)
             return
         elif self.state == "stop":
+            self.motion.stop()
             return
             
     
