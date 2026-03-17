@@ -96,28 +96,23 @@ class colourIdentifier(Node):
 
                 # draw a circle on the contour you're identifying
                 #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
-                x,y,w,h = cv2.boundingRect(c)
-                cv2.rectangle(image,(x,y),(x+w,y+h),colour,thickness)
+                (x, y), radius = cv2.minEnclosingCircle(c)
+
+                center = (int(x), int(y)) 
+                radius = int(radius) 
+                cv2.rectangle(image,(center_x,center_y),radius,colour,thickness)
+                cv2.drawContours(image,)
+
                 # Then alter the values of any flags
+
+                self.green_found = True
+            else:
+                self.green_found = False   
 
 
         #if the flag is true (colour has been detected)
             #print the flag or colour to test that it has been detected
             #alternatively you could publish to the lab1 talker/listener
-
-        if self.green_found == True:
-            if cv2.contourArea(c) > 30000:
-                # Too close to object, need to move backwards
-                print("backward")
-                self.too_close = True
-                #self.walk_backward()
-            elif cv2.contourArea(c) <= 30000 :
-                print("forward")
-                self.too_close = False
-                # Too far away from object, need to move forwards
-                #self.walk_forward()
-        else:
-            self.stop()
 
         #Show the resultant images you have created. You can show all of them or just the end result if you wish to.
 
