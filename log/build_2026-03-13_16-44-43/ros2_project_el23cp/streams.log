@@ -1,0 +1,28 @@
+[0.791s] Invoking command in '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp': PYTHONPATH=/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/prefix_override:/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ros2_project_el23cp build --build-base /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build install --record /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/install.log --single-version-externally-managed
+[1.027s] running egg_info
+[1.028s] writing build/ros2_project_el23cp/ros2_project_el23cp.egg-info/PKG-INFO
+[1.031s] writing dependency_links to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/dependency_links.txt
+[1.035s] writing entry points to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/entry_points.txt
+[1.038s] writing requirements to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/requires.txt
+[1.040s] writing top-level names to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/top_level.txt
+[1.047s] reading manifest file 'build/ros2_project_el23cp/ros2_project_el23cp.egg-info/SOURCES.txt'
+[1.049s] writing manifest file 'build/ros2_project_el23cp/ros2_project_el23cp.egg-info/SOURCES.txt'
+[1.052s] running build
+[1.052s] running build_py
+[1.053s] copying ros2_project_el23cp/robot_code.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[1.057s] running install
+[1.058s] running install_lib
+[1.060s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/robot_code.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[1.067s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/robot_code.py to robot_code.cpython-310.pyc
+[1.074s] running install_data
+[1.074s] running install_egg_info
+[1.075s] removing '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp-0.0.0-py3.10.egg-info' (and everything under it)
+[1.085s] Copying build/ros2_project_el23cp/ros2_project_el23cp.egg-info to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp-0.0.0-py3.10.egg-info
+[1.126s] running install_scripts
+[1.143s] Installing first_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.147s] Installing fourth_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.150s] Installing robot_code script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.153s] Installing second_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.156s] Installing third_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.159s] writing list of installed files to '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/install.log'
+[1.176s] Invoked command in '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp' returned '0': PYTHONPATH=/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/prefix_override:/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ros2_project_el23cp build --build-base /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build install --record /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/install.log --single-version-externally-managed

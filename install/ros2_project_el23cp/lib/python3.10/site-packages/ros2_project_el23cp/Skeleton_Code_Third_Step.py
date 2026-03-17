@@ -26,7 +26,13 @@ class colourIdentifier(Node):
         self.bridge = CvBridge()
         self.subscription = self.create_subscription(Image, '/camera/image_raw', self.callback, 10)
         self.subscription  # prevent unused variable warning
+
+        self.sensitivity = 10
+        self.green_found = False
         
+        self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.rate = self.create_rate(10)  # 10 Hz
+        self.too_close = False
         
         
 
@@ -46,15 +52,26 @@ class colourIdentifier(Node):
         # But remember that you should always wrap a call to this conversion method in an exception handler
 
         # Set the upper and lower bounds for the colour you wish to identify - green
+        hsv_red_lower = np.array([0 - self.sensitivity, 100, 100])
+        hsv_red_upper = np.array([0 + self.sensitivity, 255, 255])
         hsv_green_lower = np.array([60 - self.sensitivity, 100, 100])
         hsv_green_upper = np.array([60 + self.sensitivity, 255, 255])
-        # Convert the rgb image into a hsv image
-        Hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        hsv_blue_lower = np.array([120 - self.sensitivity, 100, 100])
+        hsv_blue_upper = np.array([120 + self.sensitivity, 255, 255])
+        hsv_red_lower = np.array([180 - self.sensitivity, 100, 100])
+        hsv_red_upper = np.array([180 + self.sensitivity, 255, 255])
+        
+        green_mask = cv2.inRange(hsv_image, hsv_green_lower, hsv_green_upper)
+        blue_mask = cv2.inRange(hsv_image, hsv_blue_lower, hsv_blue_upper)
+        red_mask = cv2.inRange(hsv_image, hsv_red_lower, hsv_red_upper)
 
-        # Filter out everything but a particular colour using the cv2.inRange() method
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        # Apply the mask to the original image using the cv2.bitwise_and() method
-
+        rg_mask = cv2.bitwise_or(red_mask, green_mask)
+        rgb_mask = cv2.bitwise_or(rg_mask, blue_mask)
+        
+        #filtered_img = cv2.bitwise_and(image, image, mask=rgb_mask)
+        green_img = cv2.bitwise_and(image, image, mask=green_mask)
 
         # Find the contours that appear within the certain colour mask using the cv2.findContours() method
         # For <mode> use cv2.RETR_LIST for <method> use cv2.CHAIN_APPROX_SIMPLE

@@ -6,6 +6,10 @@ load map:
 ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True map:=$HOME/ros2_ws/src/ros2_project_el23cp/map/map.yaml
 
 to launch new/updated code: ALWAYS colcon build  && source ~/.bashrc
+
+ros2 run ros2_project_el23cp robot_code
+
+to project directory: 
 '''
 
 #FORWARD THEN SCANNING imports
@@ -17,7 +21,7 @@ from rclpy.exceptions import ROSInterruptException
 import signal
 
 #GOING TO POSITION imports
-import rclpy
+#import rclpy
 from rclpy.action import ActionClient
 #from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
@@ -50,7 +54,7 @@ class Motion(Node):
             self.publisher.publish(desired_velocity)
             self.rate.sleep()
 
-    def rotate_on_spot(self):
+    def rotate(self):
         desired_velocity = Twist()
         desired_velocity.linear.x = 0.0  # Forward with 0.2 m/s
         desired_velocity.angular.z = 0.628  # Rotate at 0.2 deg
@@ -74,8 +78,10 @@ class GoToPose(Node):
     def __init__(self):
         super().__init__('navigation_goal_action_client')
         self.action_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        self.goal_done = False
 
     def send_goal(self, x, y, yaw):
+        self.goal_done = False
         goal_msg = NavigateToPose.Goal()
         goal_msg.pose.header.frame_id = 'map'
         goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
@@ -96,21 +102,24 @@ class GoToPose(Node):
         goal_handle = future.result()
         if not goal_handle.accepted:
             self.get_logger().info('Goal rejected')
+            self.goal_done = True
             return
 
         self.get_logger().info('Goal accepted')
         self.get_result_future = goal_handle.get_result_async()
         self.get_result_future.add_done_callback(self.get_result_callback)
 
-    def get_result_callback(self, future):
+    def get_result_callback(self, future):  
+    
         result = future.result().result
         self.get_logger().info(f'Navigation result: {result}')
+        self.goal_done = True
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
         # NOTE: if you want, you can use the feedback while the robot is moving.
         #       uncomment to suit your need.
-
+        '''
         ## Access the current pose
         current_pose = feedback_msg.feedback.current_pose
         position = current_pose.pose.position
@@ -120,50 +129,112 @@ class GoToPose(Node):
         navigation_time = feedback_msg.feedback.navigation_time
         distance_remaining = feedback_msg.feedback.distance_remaining
 
-        ## Print or process the feedback data
+        ## Paw)rint or process the feedback data
         self.get_logger().info(f'Current Pose: [x: {position.x}, y: {position.y}, z: {position.z}]')
         self.get_logger().info(f'Distance Remaining: {distance_remaining}')
+        '''
+        
+class Explorer(Node):
+    def __init__(self):
+        super().__init__('explorer')
+
+        self.go_to_pose = GoToPose()
+        self.motion = Motion()
+
+        self.state = "go to corner"
+
+        self.current_x = None
+        self.current_y = None
+
+        self.blue_found = False
+        self.red_found = False
+        self.green_found = False
+
+        self.count = 0
+
+        self.create_timer(0.1, self.robot_check)
+        
+#    def go_to_corner(self, x, y, yaw):
+#        self.go_to_pose.send_goal(x, y, yaw)# Defining main()
+
+    def go_to_blue(self, x, y, yaw):
+        # GO TO  last known position
+        self.go_to_pose.send_goal(x, y, yaw)
+
+    def checking_colours(self):
+        self.get_logger().info('Looking for colours')
+        
 
 
+    def robot_check(self):
+        if self.state == "go to corner":
+            self.get_logger().info('Starting Position')
+            self.x_val = -9.8
+            self.y_val = -15.0
+            self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
+            self.state = "scanning"
+            return
+        
+        elif self.state == "scanning":
+            # loop through block flags, as it rotates
+            #   recording locations
+            # rotate by small degree until certain count
+            while self.count < 3:
+                self.get_logger().info('Scanning')
+                
+                self.motion.rotate()
+                self.checking_colours()
+                self.count += 1
+                return
+
+            if self.count == 3:
+                self.get_logger().info('All colours found')
+                self.state = "go to blue"
+                self.go_to_pose.send_goal(-4.7, -11.5, 0.0024)
+                return
+        
+        
+            
 # Defining main()
 def main(args=None):
-    # from go_to_pos
-    
     rclpy.init(args=args)
     
-    
-    go_to_pose = GoToPose()
-    go_to_pose.send_goal(3.5, -8.5, 0.0024)  # example coordinates
-    rclpy.spin(go_to_pose)
-    
-    '''  
-    #from going foward
-    def signal_handler(sig, frame):
-        motion.stop()
-        rclpy.shutdown()
-
-    rclpy.init(args=None)
-    motion = Motion()
-
-    signal.signal(signal.SIGINT, signal_handler)
-    thread = threading.Thread(target=rclpy.spin, args=(motion,), daemon=True)
-    thread.start()
-
-    try:
-        while rclpy.ok():
-            #if no obstacle within (___) pixels
-            
-            motion.rotate_on_spot()
-            motion.walk_forward()
-            #motion.rotate_on_spot()
-                
-            
-            motion.stop()
-            motion.rotate_on_spot()   
-            
-            # first_walker.walk_backward()
-    except ROSInterruptException:
-        pass
+    explorer = Explorer()
+      
+    rclpy.spin(explorer)
+    # from go_to_pos
     '''
+    rclpy.init(args=args)
+
+    go_to_pose = GoToPose()
+    motion = Motion()
+    # go to corner: 
+    x_val = -9.8
+    y_val = 15.0
+    start_yaw = 0.0024 
+    
+    go_to_pose.send_goal(x_val, y_val, start_yaw)  # example coordinates
+    rclpy.spin_once(go_to_pose)
+    
+    
+    # move 5m x-way then scan every 5m
+
+    scan = motion.rotate_on_spot()
+    
+    # checks if it can see any blocks. 
+    
+    # if all 3, then walk to blue
+    
+    # if not "find blue/red/green"
+    #checks if all 3, then walk to blue
+    # if not find remaining colour
+    # checks if all 3, if yes, walk to blue, if not walk find last one,
+    # find method using grid below
+    while x_val < 9.95 & y_val < 6:
+        new_x = x_val + 5
+        new_y = y_val - 5
+        go_to_pose.send_goal(new_x, new_y, start_yaw)
+    '''
+
 if __name__ == '__main__':
     main()

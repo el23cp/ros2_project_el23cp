@@ -1,0 +1,31 @@
+[1.568s] Invoking command in '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp': PYTHONPATH=/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/prefix_override:/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ros2_project_el23cp build --build-base /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build install --record /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/install.log --single-version-externally-managed
+[2.051s] running egg_info
+[2.054s] writing build/ros2_project_el23cp/ros2_project_el23cp.egg-info/PKG-INFO
+[2.060s] writing dependency_links to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/dependency_links.txt
+[2.063s] writing entry points to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/entry_points.txt
+[2.066s] writing requirements to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/requires.txt
+[2.069s] writing top-level names to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/top_level.txt
+[2.077s] reading manifest file 'build/ros2_project_el23cp/ros2_project_el23cp.egg-info/SOURCES.txt'
+[2.079s] writing manifest file 'build/ros2_project_el23cp/ros2_project_el23cp.egg-info/SOURCES.txt'
+[2.082s] running build
+[2.082s] running build_py
+[2.083s] copying ros2_project_el23cp/Skeleton_Code_Third_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[2.089s] copying ros2_project_el23cp/robot_code.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[2.095s] running install
+[2.096s] running install_lib
+[2.098s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/Skeleton_Code_Third_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[2.110s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/robot_code.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[2.123s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/Skeleton_Code_Third_Step.py to Skeleton_Code_Third_Step.cpython-310.pyc
+[2.131s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/robot_code.py to robot_code.cpython-310.pyc
+[2.139s] running install_data
+[2.141s] running install_egg_info
+[2.142s] removing '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp-0.0.0-py3.10.egg-info' (and everything under it)
+[2.151s] Copying build/ros2_project_el23cp/ros2_project_el23cp.egg-info to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp-0.0.0-py3.10.egg-info
+[2.198s] running install_scripts
+[2.228s] Installing first_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[2.232s] Installing fourth_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[2.236s] Installing robot_code script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[2.240s] Installing second_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[2.243s] Installing third_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[2.248s] writing list of installed files to '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/install.log'
+[2.286s] Invoked command in '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp' returned '0': PYTHONPATH=/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/prefix_override:/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ros2_project_el23cp build --build-base /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build install --record /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/install.log --single-version-externally-managed

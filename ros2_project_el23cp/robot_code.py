@@ -54,7 +54,7 @@ class Motion(Node):
             self.publisher.publish(desired_velocity)
             self.rate.sleep()
 
-    def rotate_on_spot(self):
+    def rotate(self):
         desired_velocity = Twist()
         desired_velocity.linear.x = 0.0  # Forward with 0.2 m/s
         desired_velocity.angular.z = 0.628  # Rotate at 0.2 deg
@@ -78,8 +78,10 @@ class GoToPose(Node):
     def __init__(self):
         super().__init__('navigation_goal_action_client')
         self.action_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        self.goal_done = False
 
     def send_goal(self, x, y, yaw):
+        self.goal_done = False
         goal_msg = NavigateToPose.Goal()
         goal_msg.pose.header.frame_id = 'map'
         goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
@@ -100,6 +102,7 @@ class GoToPose(Node):
         goal_handle = future.result()
         if not goal_handle.accepted:
             self.get_logger().info('Goal rejected')
+            self.goal_done = True
             return
 
         self.get_logger().info('Goal accepted')
@@ -110,6 +113,7 @@ class GoToPose(Node):
     
         result = future.result().result
         self.get_logger().info(f'Navigation result: {result}')
+        self.goal_done = True
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
@@ -133,31 +137,84 @@ class GoToPose(Node):
 class Explorer(Node):
     def __init__(self):
         super().__init__('explorer')
+
         self.go_to_pose = GoToPose()
         self.motion = Motion()
-        self.state = "go_to_corner"
-        self.current_x
-        self.current_y
-        self.direction, self.row()
-        self.create_timer(0.1, self.loop)
+
+        self.state = "go to corner"
+
+        self.current_x = None
+        self.current_y = None
+
+        self.blue_found = False
+        self.red_found = False
+        self.green_found = False
+
+        self.count = 0
+
+        self.create_timer(0.1, self.robot_check)
         
-    def go_to_corner(self, x, y, yaw):
-        self.go_to_pose.send_goal(x, y, yaw)# Defining main()
-    
+#    def go_to_corner(self, x, y, yaw):
+#        self.go_to_pose.send_goal(x, y, yaw)# Defining main()
+
+    def go_to_blue(self, x, y, yaw):
+        # use cv.moment to make it go closer to blue contour
+        # rotate until find blue
+        self.go_to_pose.send_goal(x, y, yaw)
+        return
+
+    def checking_colours(self):
+        self.get_logger().info('Looking for colours')
+        
+        self.blue_found = True
+        self.red_found = True
+        self.green_found = False
+
+        if self.blue_found == True:
+            self.count += 1
+        elif self.red_found == True:
+            self.count += 1
+        elif self.red_found == True:
+            self.count += 1
+            
+
     def robot_check(self):
         if self.state == "go to corner":
+            self.get_logger().info('Starting Position')
             self.x_val = -9.8
             self.y_val = -15.0
-            self.state = "waiting"
+            self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
+            self.state = "scanning"
             return
         
-        if self.state == "waiting":
+        elif self.state == "scanning":
+            # loop through block flags, as it rotates
+            #   recording locations
+            # rotate by small degree until certain count
+            while self.count < 3:
+                self.get_logger().info('Scanning')
+                
+                self.motion.rotate()
+                self.checking_colours()
+                
+                return
+
+            if self.count == 3 & self.blue_found == True:
+                self.get_logger().info('All colours found')
+                self.state = "go to blue"
+                self.go_to_pose.send_goal(-4.7, -11.5, 0.0024)
+                return
             
-            self.x_val = -9.8
-            self.y_val = -15.0
+        elif self.state == "go to blue":
+            #get location when it last saw blue
+            # position x
+            # position y
+            # self.go_to_pose.send_goal(position x, position y, 0.0024)
             return
-                        
+        elif self.state == "stop":
+            return
             
+    
 # Defining main()
 def main(args=None):
     rclpy.init(args=args)
