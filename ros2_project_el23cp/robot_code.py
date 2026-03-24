@@ -55,7 +55,7 @@ class Motion(Node):
         desired_velocity = Twist()
         desired_velocity.linear.x = 0.5  # Forward with 0.2 m/s
 
-        for _ in range(100):  # Stop for a brief moment
+        for _ in range(100):  # Stop for a brief momentcolcon build  && source ~/.bashrc
             self.publisher.publish(desired_velocity)
             self.rategreen_found.sleep()
 
@@ -159,7 +159,7 @@ class colourIdentifier(Node):
         # Remember to initialise a CvBridge() and set up a subscriber to the image topic you wish to use
         # We covered which topic to subscribe to should you wish to receive image data
         self.bridge = CvBridge()
-        self.subscription = self.create_subscription(Image, '/camera/image_raw', self.callback, 10)
+        self.subscription = self.create_subscription(Image, '/camera/image_raw', self.find_colour, 10)
         self.subscription  # prevent unused variable warning
 
         self.sensitivity = 10
@@ -242,7 +242,7 @@ class colourIdentifier(Node):
 
                 self.blue_found = True
                 self.count +1
-                
+
                 self.get_logger().info('Blue is found')
             else:
                 self.blue_found = False   
@@ -311,6 +311,7 @@ class Explorer(Node):
 
         self.go_to_pose = GoToPose()
         self.motion = Motion()
+        self.colourIdentifier = colourIdentifier()
 
         self.state = "go to corner"
 
@@ -333,9 +334,9 @@ class Explorer(Node):
         self.go_to_pose.send_goal(x, y, yaw)
         return
 
-    def checking_colours(self):
-        self.get_logger().info('Looking for colours')
-        self.colourIdentifier.find_colour()
+    #def checking_colours(self):
+        #self.get_logger().info('Looking for colours')
+        #self.colourIdentifier.find_colour()
           
     def robot_check(self):
         if self.state == "go to corner":
@@ -344,7 +345,7 @@ class Explorer(Node):
             self.y_val = -15.0
             self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
             self.state = "scanning"
-            return
+            
         
         elif self.state == "scanning":
             # loop through block flags, as it rotates
@@ -354,7 +355,7 @@ class Explorer(Node):
                 self.get_logger().info('Scanning')
                 
                 self.motion.rotate()
-                self.checking_colours()
+                self.colourIdentifier.find_colour()
                 
                 return
 
