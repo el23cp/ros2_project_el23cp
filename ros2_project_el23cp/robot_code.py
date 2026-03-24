@@ -57,7 +57,7 @@ class Motion(Node):
 
         for _ in range(100):  # Stop for a brief moment
             self.publisher.publish(desired_velocity)
-            self.rate.sleep()
+            self.rategreen_found.sleep()
 
     def walk_backward(self):
         desired_velocity = Twist()
@@ -173,7 +173,7 @@ class colourIdentifier(Node):
 
 
 
-    def callback(self, data):
+    def find_colour(self, data):
 
 
         # Convert the received image into a opencv image
@@ -205,19 +205,17 @@ class colourIdentifier(Node):
         rg_mask = cv2.bitwise_or(red_mask, green_mask)
         rgb_mask = cv2.bitwise_or(rg_mask, blue_mask)
         
-        #filtered_img = cv2.bitwise_and(image, image, mask=rgb_mask)
-        green_img = cv2.bitwise_and(image, image, mask=green_mask)
+        filtered_img = cv2.bitwise_and(image, image, mask=rgb_mask)
+        #green_img = cv2.bitwise_and(image, image, mask=green_mask)
 
         # Find the contours that appear within the certain colour mask using the cv2.findContours() method
         # For <mode> use cv2.RETR_LIST for <method> use cv2.CHAIN_APPROX_SIMPLE
-        contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
-        self.green_found = False
+        
+        # Blue
+        contours, hierarchy = cv2.findContours(blue_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
+        self.blue_found = False
 
         if len(contours) > 0:
-            # Loop over the contours
-            # There are a few different methods for identifying which contour is the biggest:
-            # Loop through the list and keep track of which contour is biggest or
-            # Use the max() method to find the largest contour
             c = max(contours, key=cv2.contourArea)
 
             #Moments can calculate the center of the contour
@@ -231,25 +229,81 @@ class colourIdentifier(Node):
 
                 # draw a circle on the contour you're identifying
                 #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
-                (x, y), radius = cv2.minEnclosingCircle(c)
+                x, y, w, h = cv2.boundingRect(c)
 
-                center = (int(x), int(y)) 
-                radius = int(radius) 
-                cv2.rectangle(image,(center_x,center_y),radius,colour,thickness)
-                cv2.drawContours(image,)
+                colour = (0,0,0)
+                thickness = 3
+
+                start_pt = (x,y)
+                end_pt = (x+w, y+h)
+                cv2.rectangle(image, start_pt, end_pt, colour, thickness)
+
+                # Then alter the values of any flags
+
+                self.blue_found = True
+                self.count +1
+                
+                self.get_logger().info('Blue is found')
+            else:
+                self.blue_found = False   
+
+        #GREEN
+        contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
+        self.green_found = False
+
+        if len(contours) > 0:
+            c = max(contours, key=cv2.contourArea)
+
+            if cv2.contourArea(c) > x: #<What do you think is a suitable area?>
+
+                # draw a circle on the contour you're identifying
+                #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
+                x, y, w, h = cv2.boundingRect(c)
+
+                colour = (0,0,0)
+                thickness = 3
+
+                start_pt = (x,y)
+                end_pt = (x+w, y+h)
+                cv2.rectangle(image, start_pt, end_pt, colour, thickness)
 
                 # Then alter the values of any flags
 
                 self.green_found = True
+                self.count +1
+                self.get_logger().info('Green is found')
+
             else:
                 self.green_found = False   
 
-
-        #if the flag is true (colour has been detected)
-            #print the flag or colour to test that it has been detected
-            #alternatively you could publish to the lab1 talker/listener
-
         #Show the resultant images you have created. You can show all of them or just the end result if you wish to.
+        
+        #GREEN
+        contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
+        self.red_found = False
+
+        if len(contours) > 0:
+            c = max(contours, key=cv2.contourArea)
+
+            if cv2.contourArea(c) > x: #<What do you think is a suitable area?>
+
+                # draw a circle on the contour you're identifying
+                #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
+                x, y, w, h = cv2.boundingRect(c)
+
+                colour = (0,0,0)
+                thickness = 3
+
+                start_pt = (x,y)
+                end_pt = (x+w, y+h)
+                cv2.rectangle(image, start_pt, end_pt, colour, thickness)
+                
+                self.red_found = True
+                self.count +1
+                self.get_logger().info('Red is found')
+            else:
+                self.red_found = False   
+
 
 class Explorer(Node):
     def __init__(self):
@@ -262,7 +316,6 @@ class Explorer(Node):
 
         self.current_x = None
         self.current_y = None
-
         self.blue_found = False
         self.red_found = False
         self.green_found = False
@@ -282,15 +335,8 @@ class Explorer(Node):
 
     def checking_colours(self):
         self.get_logger().info('Looking for colours')
-
-        if self.blue_found == True:
-            self.count += 1
-        elif self.red_found == True:
-            self.count += 1
-        elif self.red_found == True:
-            self.count += 1
-            
-
+        self.colourIdentifier.find_colour()
+          
     def robot_check(self):
         if self.state == "go to corner":
             self.get_logger().info('Starting Position')
