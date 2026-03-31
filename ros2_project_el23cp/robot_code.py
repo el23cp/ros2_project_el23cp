@@ -33,7 +33,7 @@ import sys, time
 import cv2
 import numpy as np
 #import rclpy
-from rclpy.node import Node
+#from rclpy.node import Node
 from geometry_msgs.msg import Vector3
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
@@ -57,7 +57,7 @@ class Motion(Node):
 
         for _ in range(100):  # Stop for a brief momentcolcon build  && source ~/.bashrc
             self.publisher.publish(desired_velocity)
-            self.rategreen_found.sleep()
+            self.rate.sleep()
 
     def walk_backward(self):
         desired_velocity = Twist()
@@ -163,7 +163,12 @@ class colourIdentifier(Node):
         self.subscription  # prevent unused variable warning
 
         self.sensitivity = 10
+        
         self.green_found = False
+        self.blue_found = False
+        self.red_found = False
+
+        self.count = 0
         
         self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
         self.rate = self.create_rate(10)  # 10 Hz
@@ -184,24 +189,26 @@ class colourIdentifier(Node):
         cv2.resizeWindow('camera_Feed',320,240)
         cv2.waitKey(3)
 
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
         # But remember that you should always wrap a call to this conversion method in an exception handler
 
         # Set the upper and lower bounds for the colour you wish to identify - green
-        hsv_red_lower = np.array([0 - self.sensitivity, 100, 100])
-        hsv_red_upper = np.array([0 + self.sensitivity, 255, 255])
+        hsv_red_lower1 = np.array([0 - self.sensitivity, 100, 100])
+        hsv_red_upper1 = np.array([0 + self.sensitivity, 255, 255])
         hsv_green_lower = np.array([60 - self.sensitivity, 100, 100])
         hsv_green_upper = np.array([60 + self.sensitivity, 255, 255])
         hsv_blue_lower = np.array([120 - self.sensitivity, 100, 100])
         hsv_blue_upper = np.array([120 + self.sensitivity, 255, 255])
-        hsv_red_lower = np.array([180 - self.sensitivity, 100, 100])
-        hsv_red_upper = np.array([180 + self.sensitivity, 255, 255])
-        
+        hsv_red_lower2 = np.array([180 - self.sensitivity, 100, 100])
+        hsv_red_upper2 = np.array([180 + self.sensitivity, 255, 255])
+               
         green_mask = cv2.inRange(hsv_image, hsv_green_lower, hsv_green_upper)
         blue_mask = cv2.inRange(hsv_image, hsv_blue_lower, hsv_blue_upper)
-        red_mask = cv2.inRange(hsv_image, hsv_red_lower, hsv_red_upper)
-
-        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
+        red_mask1 = cv2.inRange(hsv_image, hsv_red_lower1, hsv_red_upper1)        
+        red_mask2 = cv2.inRange(hsv_image, hsv_red_lower2, hsv_red_upper2)   
+        red_mask = red_mask1 + red_mask2
+        
         rg_mask = cv2.bitwise_or(red_mask, green_mask)
         rgb_mask = cv2.bitwise_or(rg_mask, blue_mask)
         
@@ -210,11 +217,13 @@ class colourIdentifier(Node):
 
         # Find the contours that appear within the certain colour mask using the cv2.findContours() method
         # For <mode> use cv2.RETR_LIST for <method> use cv2.CHAIN_APPROX_SIMPLE
-        
+        self.blue_found = False
+        self.green_found = False
+        self.red_found = False
+
         # Blue
         contours, hierarchy = cv2.findContours(blue_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
-        self.blue_found = False
-
+        
         if len(contours) > 0:
             c = max(contours, key=cv2.contourArea)
 
@@ -225,7 +234,7 @@ class colourIdentifier(Node):
             #Check if the area of the shape you want is big enough to be considered
             # If it is then change the flag for that colour to be True(1)
 
-            if cv2.contourArea(c) > x: #<What do you think is a suitable area?>
+            if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
 
                 # draw a circle on the contour you're identifying
                 #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
@@ -241,7 +250,7 @@ class colourIdentifier(Node):
                 # Then alter the values of any flags
 
                 self.blue_found = True
-                self.count +1
+                self.count += 1
 
                 self.get_logger().info('Blue is found')
             else:
@@ -249,12 +258,10 @@ class colourIdentifier(Node):
 
         #GREEN
         contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
-        self.green_found = False
-
         if len(contours) > 0:
             c = max(contours, key=cv2.contourArea)
 
-            if cv2.contourArea(c) > x: #<What do you think is a suitable area?>
+            if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
 
                 # draw a circle on the contour you're identifying
                 #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
@@ -270,7 +277,7 @@ class colourIdentifier(Node):
                 # Then alter the values of any flags
 
                 self.green_found = True
-                self.count +1
+                self.count +=1
                 self.get_logger().info('Green is found')
 
             else:
@@ -280,12 +287,11 @@ class colourIdentifier(Node):
         
         #GREEN
         contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
-        self.red_found = False
 
         if len(contours) > 0:
             c = max(contours, key=cv2.contourArea)
 
-            if cv2.contourArea(c) > x: #<What do you think is a suitable area?>
+            if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
 
                 # draw a circle on the contour you're identifying
                 #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
@@ -299,7 +305,7 @@ class colourIdentifier(Node):
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
                 
                 self.red_found = True
-                self.count +1
+                self.count +=1
                 self.get_logger().info('Red is found')
             else:
                 self.red_found = False   
@@ -315,8 +321,6 @@ class Explorer(Node):
 
         self.state = "go to corner"
 
-        self.current_x = None
-        self.current_y = None
         self.blue_found = False
         self.red_found = False
         self.green_found = False
@@ -325,9 +329,14 @@ class Explorer(Node):
 
         self.create_timer(0.1, self.robot_check)
         
-#    def go_to_corner(self, x, y, yaw):
-#        self.go_to_pose.send_goal(x, y, yaw)# Defining main()
+    def update_colour_flags(self):
+        self.blue_found = self.colourIdentifier.blue_found
+        self.green_found = self.colourIdentifier.green_found
+        self.red_found = self.colourIdentifier.red_found
 
+        self.count = sum([self.blue_found, self.green_found, self.red_found])
+
+    '''
     def go_to_blue(self, x, y, yaw):
         # use cv.moment to make it go closer to blue contour
         # rotate until find blue
@@ -337,29 +346,31 @@ class Explorer(Node):
     #def checking_colours(self):
         #self.get_logger().info('Looking for colours')
         #self.colourIdentifier.find_colour()
-          
+    '''   
     def robot_check(self):
+        self.update_colour_flags()
         if self.state == "go to corner":
             self.get_logger().info('Starting Position')
             self.x_val = -9.8
             self.y_val = -15.0
             self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
             self.state = "scanning"
+
             
         
         elif self.state == "scanning":
             # loop through block flags, as it rotates
             #   recording locations
             # rotate by small degree until certain count
-            while self.count < 3:
-                self.get_logger().info('Scanning')
-                
+            self.get_logger().info('Scanning')
+            self.motion.rotate()
+            
+            if self.count < 3:                
                 self.motion.rotate()
-                self.colourIdentifier.find_colour()
-                
+                #smth to find other colours      
                 return
 
-            if self.count == 3 & self.blue_found == True:
+            if self.count == 3 and self.blue_found:
                 self.get_logger().info('All colours found')
                 self.state = "go to blue"
                 self.go_to_pose.send_goal(-4.7, -11.5, 0.0024)
@@ -383,39 +394,6 @@ def main(args=None):
     explorer = Explorer()
       
     rclpy.spin(explorer)
-    # from go_to_pos
-    '''
-    rclpy.init(args=args)
-
-    go_to_pose = GoToPose()
-    motion = Motion()
-    # go to corner: 
-    x_val = -9.8
-    y_val = 15.0
-    start_yaw = 0.0024 
-    
-    go_to_pose.send_goal(x_val, y_val, start_yaw)  # example coordinates
-    rclpy.spin_once(go_to_pose)
-    
-    
-    # move 5m x-way then scan every 5m
-
-    scan = motion.rotate_on_spot()
-    
-    # checks if it can see any blocks. 
-    
-    # if all 3, then walk to blue
-    
-    # if not "find blue/red/green"
-    #checks if all 3, then walk to blue
-    # if not find remaining colour
-    # checks if all 3, if yes, walk to blue, if not walk find last one,
-    # find method using grid below
-    while x_val < 9.95 & y_val < 6:
-        new_x = x_val + 5
-        new_y = y_val - 5
-        go_to_pose.send_goal(new_x, new_y, start_yaw)
-    '''
 
 if __name__ == '__main__':
     main()
