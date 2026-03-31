@@ -45,11 +45,12 @@ ___________ FORWARD_THEN_SCANNING ___________
 '''
 
 
-class Motion(Node):
-    def __init__(self):
-        super().__init__('firstwalker')
-        self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.rate = self.create_rate(10)  # 10 Hz
+class Motion:
+    def __init__(self, node):
+        #super().__init__('firstwalker')
+        self.node = node
+        self.publisher = node.create_publisher(Twist, '/cmd_vel', 10)
+        self.rate = node.create_rate(10)  # 10 Hz
 
     def walk_forward(self):
         desired_velocity = Twist()
@@ -86,17 +87,18 @@ class Motion(Node):
 '''
 ___________ GOING_TO_POSITIONS ___________
 '''
-class GoToPose(Node):
-    def __init__(self):
-        super().__init__('navigation_goal_action_client')
-        self.action_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+class GoToPose:
+    def __init__(self, node):
+        #super().__init__('navigation_goal_action_client')
+        self.node = node
+        self.action_client = ActionClient(node, NavigateToPose, 'navigate_to_pose')
         self.goal_done = False
 
     def send_goal(self, x, y, yaw):
         self.goal_done = False
         goal_msg = NavigateToPose.Goal()
         goal_msg.pose.header.frame_id = 'map'
-        goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
+        goal_msg.pose.header.stamp = self.node.get_clock().now().to_msg()
 
         # Position
         goal_msg.pose.pose.position.x = x
@@ -113,18 +115,17 @@ class GoToPose(Node):
     def goal_response_callback(self, future):
         goal_handle = future.result()
         if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected')
+            self.node.get_logger().info('Goal rejected')
             self.goal_done = True
             return
 
-        self.get_logger().info('Goal accepted')
+        self.node.get_logger().info('Goal accepted')
         self.get_result_future = goal_handle.get_result_async()
         self.get_result_future.add_done_callback(self.get_result_callback)
 
     def get_result_callback(self, future):  
-    
         result = future.result().result
-        self.get_logger().info(f'Navigation result: {result}')
+        self.node.get_logger().info(f'Navigation result: {result}')
         self.goal_done = True
 
     def feedback_callback(self, feedback_msg):
@@ -142,25 +143,26 @@ class GoToPose(Node):
         distance_remaining = feedback_msg.feedback.distance_remaining
 
         ## Paw)rint or process the feedback data
-        self.get_logger().info(f'Current Pose: [x: {position.x}, y: {position.y}, z: {position.z}]')
-        self.get_logger().info(f'Distance Remaining: {distance_remaining}')
+        self.node.get_logger().info(f'Current Pose: [x: {position.x}, y: {position.y}, z: {position.z}]')
+        self.node.get_logger().info(f'Distance Remaining: {distance_remaining}')
         '''
 
 '''
 ___________ COLOURS ___________
 '''    
-class colourIdentifier(Node):
-    def __init__(self):
-        super().__init__('cI')
+class colourIdentifier:
+    def __init__(self, node):
+        #super().__init__('cI')
         # Initialise any flags that signal a colour has been detected (default to false)
 
         # Initialise the value you wish to use for sensitivity in the colour detection (10 should be enough)
 
         # Remember to initialise a CvBridge() and set up a subscriber to the image topic you wish to use
         # We covered which topic to subscribe to should you wish to receive image data
+        self.node = node
         self.bridge = CvBridge()
-        self.subscription = self.create_subscription(Image, '/camera/image_raw', self.find_colour, 10)
-        self.subscription  # prevent unused variable warning
+        self.subscription = node.create_subscription(Image, '/camera/image_raw', self.find_colour, 10)
+        #self.subscription  # prevent unused variable warning
 
         self.sensitivity = 10
         
@@ -170,9 +172,9 @@ class colourIdentifier(Node):
 
         self.count = 0
         
-        self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.rate = self.create_rate(10)  # 10 Hz
-        self.too_close = False
+        #self.publisher = node.create_publisher(Twist, '/cmd_vel', 10)
+        self.rate = node.create_rate(10)  # 10 Hz
+        #self.too_close = False
         
         
 
@@ -207,7 +209,7 @@ class colourIdentifier(Node):
         blue_mask = cv2.inRange(hsv_image, hsv_blue_lower, hsv_blue_upper)
         red_mask1 = cv2.inRange(hsv_image, hsv_red_lower1, hsv_red_upper1)        
         red_mask2 = cv2.inRange(hsv_image, hsv_red_lower2, hsv_red_upper2)   
-        red_mask = red_mask1 + red_mask2
+        red_mask = red_mask1 | red_mask2
         
         rg_mask = cv2.bitwise_or(red_mask, green_mask)
         rgb_mask = cv2.bitwise_or(rg_mask, blue_mask)
@@ -231,13 +233,7 @@ class colourIdentifier(Node):
             M = cv2.moments(c)
             cx, cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
 
-            #Check if the area of the shape you want is big enough to be considered
-            # If it is then change the flag for that colour to be True(1)
-
             if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
-
-                # draw a circle on the contour you're identifying
-                #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
                 x, y, w, h = cv2.boundingRect(c)
 
                 colour = (0,0,0)
@@ -250,9 +246,7 @@ class colourIdentifier(Node):
                 # Then alter the values of any flags
 
                 self.blue_found = True
-                self.count += 1
-
-                self.get_logger().info('Blue is found')
+                self.node.get_logger().info('Blue is found')
             else:
                 self.blue_found = False   
 
@@ -277,16 +271,15 @@ class colourIdentifier(Node):
                 # Then alter the values of any flags
 
                 self.green_found = True
-                self.count +=1
-                self.get_logger().info('Green is found')
+                self.node.get_logger().info('Green is found')
 
             else:
                 self.green_found = False   
 
         #Show the resultant images you have created. You can show all of them or just the end result if you wish to.
         
-        #GREEN
-        contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
+        #RED
+        contours, hierarchy = cv2.findContours(red_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
 
         if len(contours) > 0:
             c = max(contours, key=cv2.contourArea)
@@ -305,8 +298,7 @@ class colourIdentifier(Node):
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
                 
                 self.red_found = True
-                self.count +=1
-                self.get_logger().info('Red is found')
+                self.node.get_logger().info('Red is found')
             else:
                 self.red_found = False   
 
@@ -315,9 +307,9 @@ class Explorer(Node):
     def __init__(self):
         super().__init__('explorer')
 
-        self.go_to_pose = GoToPose()
-        self.motion = Motion()
-        self.colourIdentifier = colourIdentifier()
+        self.go_to_pose = GoToPose(self)
+        self.motion = Motion(self)
+        self.colourIdentifier = colourIdentifier(self)
 
         self.state = "go to corner"
 
@@ -344,13 +336,13 @@ class Explorer(Node):
         return
 
     #def checking_colours(self):
-        #self.get_logger().info('Looking for colours')
+        #self.node.get_logger().info('Looking for colours')
         #self.colourIdentifier.find_colour()
     '''   
     def robot_check(self):
         self.update_colour_flags()
         if self.state == "go to corner":
-            self.get_logger().info('Starting Position')
+            self.node.get_logger().info('Starting Position')
             self.x_val = -9.8
             self.y_val = -15.0
             self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
@@ -362,16 +354,16 @@ class Explorer(Node):
             # loop through block flags, as it rotates
             #   recording locations
             # rotate by small degree until certain count
-            self.get_logger().info('Scanning')
+            self.node.get_logger().info('Scanning')
             self.motion.rotate()
             
             if self.count < 3:                
-                self.motion.rotate()
+                
                 #smth to find other colours      
                 return
 
             if self.count == 3 and self.blue_found:
-                self.get_logger().info('All colours found')
+                self.node.get_logger().info('All colours found')
                 self.state = "go to blue"
                 self.go_to_pose.send_goal(-4.7, -11.5, 0.0024)
                 return
