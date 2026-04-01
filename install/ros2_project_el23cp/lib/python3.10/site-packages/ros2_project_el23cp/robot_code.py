@@ -19,32 +19,21 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from rclpy.exceptions import ROSInterruptException
 import signal
-
-#GOING TO POSITION imports
-#import rclpy
 from rclpy.action import ActionClient
-#from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
 from nav2_msgs.action import NavigateToPose
 from math import sin, cos
-
 import threading
 import sys, time
 import cv2
 import numpy as np
-#import rclpy
-#from rclpy.node import Node
 from geometry_msgs.msg import Vector3
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-#from rclpy.exceptions import ROSInterruptException
-#import signal
 
 '''
 ___________ FORWARD_THEN_SCANNING ___________
 '''
-
-
 class Motion:
     def __init__(self, node):
         #super().__init__('firstwalker')
@@ -115,7 +104,7 @@ class GoToPose:
         goal_handle = future.result()
         if not goal_handle.accepted:
             self.node.get_logger().info('Goal rejected')
-            self.goal_done = False
+            self.goal_done = True
             return
 
         self.node.get_logger().info('Goal accepted')
@@ -130,21 +119,6 @@ class GoToPose:
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
         # NOTE: if you want, you can use the feedback while the robot is moving.
-        #       uncomment to suit your need.
-        '''
-        ## Access the current pose
-        current_pose = feedback_msg.feedback.current_pose
-        position = current_pose.pose.position
-        orientation = current_pose.pose.orientation
-
-        ## Access other feedback fields
-        navigation_time = feedback_msg.feedback.navigation_time
-        distance_remaining = feedback_msg.feedback.distance_remaining
-
-        ## Paw)rint or process the feedback data
-        self.node.get_logger().info(f'Current Pose: [x: {position.x}, y: {position.y}, z: {position.z}]')
-        self.node.get_logger().info(f'Distance Remaining: {distance_remaining}')
-        '''
 
 '''
 ___________ COLOURS ___________
@@ -152,12 +126,7 @@ ___________ COLOURS ___________
 class colourIdentifier:
     def __init__(self, node):
         #super().__init__('cI')
-        # Initialise any flags that signal a colour has been detected (default to false)
 
-        # Initialise the value you wish to use for sensitivity in the colour detection (10 should be enough)
-
-        # Remember to initialise a CvBridge() and set up a subscriber to the image topic you wish to use
-        # We covered which topic to subscribe to should you wish to receive image data
         self.node = node
         self.bridge = CvBridge()
         self.subscription = node.create_subscription(Image, '/camera/image_raw', self.find_colour, 10)
@@ -180,11 +149,6 @@ class colourIdentifier:
 
         # Convert the received image into a opencv image
         image = self.bridge.imgmsg_to_cv2(data, 'bgr8')
-        
-        cv2.namedWindow('camera_Feed',cv2.WINDOW_NORMAL)
-        #cv2.imshow('camera_Feed', image)
-        #cv2.resizeWindow('camera_Feed',320,240)
-        #cv2.waitKey(3)
 
         hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -215,11 +179,10 @@ class colourIdentifier:
         if len(contours) > 0:
             c = max(contours, key=cv2.contourArea)
 
-            #Moments can calculate the center of the contour
             M = cv2.moments(c)
             cx, cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
 
-            if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
+            if cv2.contourArea(c) > 500:
                 x, y, w, h = cv2.boundingRect(c)
 
                 self.blue_cx = cx
@@ -234,6 +197,8 @@ class colourIdentifier:
                 if not self.blue_found:
                     self.node.get_logger().info('Blue is found')
                     self.blue_found = True
+                
+                self.blue_area = cv2.contourArea(c)
                                   
 
         #GREEN
@@ -255,12 +220,7 @@ class colourIdentifier:
                 if not self.green_found:
                     self.node.get_logger().info('Green is found')
                     self.green_found = True  
-                
-                #self.node.get_logger().info('Green is found')
- 
 
-        #Show the resultant images you have created. You can show all of them or just the end result if you wish to.
-        
         #RED
         contours, hierarchy = cv2.findContours(red_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
 
@@ -269,8 +229,6 @@ class colourIdentifier:
 
             if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
 
-                # draw a circle on the contour you're identifying
-                #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
                 x, y, w, h = cv2.boundingRect(c)
 
                 colour = (120,0,120)
@@ -284,10 +242,11 @@ class colourIdentifier:
                     self.node.get_logger().info('Red is found')
                     self.red_found = True                    
                 
-
+        cv2.namedWindow('camera_Feed',cv2.WINDOW_NORMAL)
         cv2.imshow('camera_Feed', image)
-        cv2.resizeWindow('camera_Feed',320,240)
-        cv2.waitKey(3)        
+        #cv2.resizeWindow('camera_Feed',320,240)
+        cv2.waitKey(3)
+
 
 class Explorer(Node):
     def __init__(self):
@@ -356,41 +315,37 @@ class Explorer(Node):
                 return
             
         elif self.state == "go to blue":
-            '''
-            if self.blue_pose is None:
-                self.get_logger().info("no blue position")
+
+            if not hasattr(self.colourIdentifier, "blue_cx"):
                 return
-                
-            if not hasattr(self, "sent_blue_goal"):
-                x_blue = self.blue_pose["x"]
-                y_blue = self.blue_pose["y"]
-                yaw_blue = self.blue_pose["yaw"]
-        
-                self.go_to_pose.send_goal(x_blue, y_blue, yaw_blue)
-                self.sent_blue_goal = True
-                
-            elif self.go_to_pose.goal_done:
-                self.get_logger().info("Reached blue view position")
-                self.motion.stop()
-            '''
-            if self.blue_found:
-                cx= self.colourIdentifier.blue_cx
-                width = self.colourIdentifier.image_width
-
-                blue_centre = width/2
-                error = cx - blue_centre
-
-                twist = Twist()
-
-                if abs(error) > 20:
-                    twist.angular.z = -0.002*error
-                else:
-                    twist.linear.x = 0.2
-                
-                self.motion.publisher.publish(twist)
-
-                
             
+            cx= self.colourIdentifier.blue_cx
+            width = self.colourIdentifier.image_width
+            area = self.colourIdentifier.blue_area
+
+            blue_centre = width/2
+            error = cx - blue_centre
+
+            twist = Twist()
+
+            if abs(error) > 20:
+                twist.angular.z = -0.002*error
+            else:
+                if area < 2900:
+                    print("Too close")
+                    self.too_close = True
+                    twist.linear.x = 0.2
+
+                elif area > 3100:
+                    print("Almost there")
+                    self.too_close = False
+                    twist.linear.x = -0.2
+                else:
+                    print("Reached target. Within 1m")
+                    #self.too_close = False
+                    self.motion.stop()   
+                
+            self.motion.publisher.publish(twist)
     
 # Defining main()
 def main(args=None):

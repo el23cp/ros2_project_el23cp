@@ -197,6 +197,8 @@ class colourIdentifier:
                 if not self.blue_found:
                     self.node.get_logger().info('Blue is found')
                     self.blue_found = True
+                
+                self.blue_area = cv2.contourArea(c)
                                   
 
         #GREEN
@@ -242,24 +244,9 @@ class colourIdentifier:
                 
         cv2.namedWindow('camera_Feed',cv2.WINDOW_NORMAL)
         cv2.imshow('camera_Feed', image)
-        #cv2.resizeWindow('camera_Feed',320,240)
+        cv2.resizeWindow('camera_Feed',320,240)
         cv2.waitKey(3)
 
-    def found_blue(self):
-        if self.blue_found:
-            if cv2.contourArea(c) > 3000:
-                print("Too close")
-                self.too_close = True
-                self.motion.walk_backward()
-
-            elif cv2.contourArea(c) < 3000:
-                print("Almost there")
-                self.too_close = False
-                self.motion.walk_forward()
-            elif cv2.contourArea(c) == 3000:
-                print("Within 1m")
-                #self.too_close = False
-                self.motion.stop()   
 
 class Explorer(Node):
     def __init__(self):
@@ -334,6 +321,8 @@ class Explorer(Node):
             
             cx= self.colourIdentifier.blue_cx
             width = self.colourIdentifier.image_width
+            area = self.colourIdentifier.blue_area
+            self.get_logger().info(f'Area: {area}')
 
             blue_centre = width/2
             error = cx - blue_centre
@@ -343,29 +332,21 @@ class Explorer(Node):
             if abs(error) > 20:
                 twist.angular.z = -0.002*error
             else:
-                twist.linear.x = 0.2
-            
-            self.motion.publisher.publish(twist)
-            self.colourIdentifier.found_blue()
-'''
-            if self.blue_found:
-                if cv2.contourArea(c) > 3000:
-                    print("Too close")
+                if area < 170000:
+                    print("Not close enough")
                     self.too_close = True
-                    self.motion.walk_backward()
+                    twist.linear.x = 0.2
 
-                elif cv2.contourArea(c) < 3000:
-                    print("Almost there")
+                elif area > 175000:
+                    print("Too close")
                     self.too_close = False
-                    self.motion.walk_forward()
-                elif cv2.contourArea(c) == 3000:
-                    print("Within 1m")
+                    twist.linear.x = -0.2
+                else:
+                    print("Reached target. Within 1m")
                     #self.too_close = False
-                    self.motion.stop()               
-'''
-
+                    self.motion.stop()   
                 
-            
+            self.motion.publisher.publish(twist)
     
 # Defining main()
 def main(args=None):
