@@ -79,9 +79,9 @@ class Motion:
         desired_velocity = Twist()
         desired_velocity.linear.x = 0.0  # Send zero velocity to stop the robot
         desired_velocity.angular.z = 0.0 # Stop rotating     
-        for _ in range(50):  # Stop for a brief moment
-            self.publisher.publish(desired_velocity)
-            self.rate.sleep()
+        #for _ in range(50):  # Stop for a brief moment
+        self.publisher.publish(desired_velocity)
+        #    self.rate.sleep()
 
 '''
 ___________ GOING_TO_POSITIONS ___________
@@ -244,8 +244,6 @@ class colourIdentifier:
                 self.blue_found = True
                                   
                 self.node.get_logger().info('Blue is found')
-            else:
-                self.blue_found = False   
 
         #GREEN
         contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
@@ -269,9 +267,7 @@ class colourIdentifier:
 
                 self.green_found = True  
                 self.node.get_logger().info('Green is found')
-
-            else:
-                self.green_found = False   
+ 
 
         #Show the resultant images you have created. You can show all of them or just the end result if you wish to.
         
@@ -296,9 +292,6 @@ class colourIdentifier:
                 
                 self.red_found = True                    
                 self.node.get_logger().info('Red is found')
-            else:
-                self.red_found = False   
-
 
 class Explorer(Node):
     def __init__(self):
@@ -330,9 +323,9 @@ class Explorer(Node):
     def robot_check(self):
         self.update_colour_flags()
         if self.state == "go to corner":
-            self.get_logger().info('Starting Position')
-
-            if not hasattr(self, "sent to corner"):
+            
+            if not hasattr(self, "sent_corner_goal"):
+                self.get_logger().info('Starting Position')
                 self.x_val = -9.8
                 self.y_val = -15.0
                 self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
@@ -343,7 +336,7 @@ class Explorer(Node):
 
                 self.sent_corner_goal = True
             
-            elif self.got_to_pose.goal_done:
+            elif self.go_to_pose.goal_done:
                 self.state = "scanning"
         
         elif self.state == "scanning":
@@ -361,6 +354,7 @@ class Explorer(Node):
 
             if self.count == 3 and self.blue_found:
                 self.get_logger().info('All colours found')
+                self.motion.stop()
                 self.state = "go to blue"
                 #self.go_to_pose.send_goal(-4.7, -11.5, 0.0024)
                 return
