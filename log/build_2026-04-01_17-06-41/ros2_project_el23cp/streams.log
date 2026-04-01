@@ -1,0 +1,56 @@
+[0.853s] Invoking command in '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp': PYTHONPATH=/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/prefix_override:/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ros2_project_el23cp build --build-base /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build install --record /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/install.log --single-version-externally-managed
+[1.102s] running egg_info
+[1.103s] creating build/ros2_project_el23cp/ros2_project_el23cp.egg-info
+[1.104s] writing build/ros2_project_el23cp/ros2_project_el23cp.egg-info/PKG-INFO
+[1.110s] writing dependency_links to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/dependency_links.txt
+[1.112s] writing entry points to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/entry_points.txt
+[1.115s] writing requirements to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/requires.txt
+[1.117s] writing top-level names to build/ros2_project_el23cp/ros2_project_el23cp.egg-info/top_level.txt
+[1.120s] writing manifest file 'build/ros2_project_el23cp/ros2_project_el23cp.egg-info/SOURCES.txt'
+[1.127s] reading manifest file 'build/ros2_project_el23cp/ros2_project_el23cp.egg-info/SOURCES.txt'
+[1.130s] writing manifest file 'build/ros2_project_el23cp/ros2_project_el23cp.egg-info/SOURCES.txt'
+[1.131s] running build
+[1.131s] running build_py
+[1.132s] creating /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build
+[1.133s] creating /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib
+[1.134s] creating /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[1.136s] copying ros2_project_el23cp/Skeleton_Code_First_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[1.141s] copying ros2_project_el23cp/Skeleton_Code_Fourth_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[1.145s] copying ros2_project_el23cp/Skeleton_Code_Second_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[1.148s] copying ros2_project_el23cp/Skeleton_Code_Third_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[1.153s] copying ros2_project_el23cp/__init__.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[1.156s] copying ros2_project_el23cp/first_step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[1.160s] copying ros2_project_el23cp/robot_code.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp
+[1.164s] running install
+[1.164s] running install_lib
+[1.168s] creating /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[1.169s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/Skeleton_Code_First_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[1.175s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/Skeleton_Code_Fourth_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[1.181s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/Skeleton_Code_Second_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[1.186s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/Skeleton_Code_Third_Step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[1.192s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/__init__.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[1.196s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/first_step.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[1.201s] copying /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build/lib/ros2_project_el23cp/robot_code.py -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp
+[1.209s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/Skeleton_Code_First_Step.py to Skeleton_Code_First_Step.cpython-310.pyc
+[1.215s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/Skeleton_Code_Fourth_Step.py to Skeleton_Code_Fourth_Step.cpython-310.pyc
+[1.221s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/Skeleton_Code_Second_Step.py to Skeleton_Code_Second_Step.cpython-310.pyc
+[1.227s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/Skeleton_Code_Third_Step.py to Skeleton_Code_Third_Step.cpython-310.pyc
+[1.233s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/__init__.py to __init__.cpython-310.pyc
+[1.238s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/first_step.py to first_step.cpython-310.pyc
+[1.243s] byte-compiling /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp/robot_code.py to robot_code.cpython-310.pyc
+[1.250s] running install_data
+[1.251s] creating /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/share/ament_index
+[1.252s] creating /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/share/ament_index/resource_index
+[1.253s] creating /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/share/ament_index/resource_index/packages
+[1.255s] copying resource/ros2_project_el23cp -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/share/ament_index/resource_index/packages
+[1.258s] copying package.xml -> /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/share/ros2_project_el23cp
+[1.262s] running install_egg_info
+[1.265s] Copying build/ros2_project_el23cp/ros2_project_el23cp.egg-info to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages/ros2_project_el23cp-0.0.0-py3.10.egg-info
+[1.313s] running install_scripts
+[1.330s] Installing first_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.333s] Installing fourth_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.336s] Installing robot_code script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.340s] Installing second_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.343s] Installing third_step script to /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/ros2_project_el23cp
+[1.347s] writing list of installed files to '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/install.log'
+[1.362s] Invoked command in '/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp' returned '0': PYTHONPATH=/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/prefix_override:/uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/install/ros2_project_el23cp/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ros2_project_el23cp build --build-base /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/build install --record /uolstore/home/users/el23cp/ros2_ws/src/ros2_project_el23cp/build/ros2_project_el23cp/install.log --single-version-externally-managed
