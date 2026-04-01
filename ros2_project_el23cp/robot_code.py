@@ -72,9 +72,8 @@ class Motion:
         desired_velocity.linear.x = 0.0  # Forward with 0.2 m/s
         desired_velocity.angular.z = 0.628  # Rotate at 0.2 deg
         
-        for _ in range(100):  # Rotate
-            self.publisher.publish(desired_velocity)
-            self.rate.sleep()
+        self.publisher.publish(desired_velocity)
+        #self.rate.sleep()
     
     def stop(self):
         desired_velocity = Twist()
@@ -219,9 +218,6 @@ class colourIdentifier:
 
         # Find the contours that appear within the certain colour mask using the cv2.findContours() method
         # For <mode> use cv2.RETR_LIST for <method> use cv2.CHAIN_APPROX_SIMPLE
-        self.blue_found = False
-        self.green_found = False
-        self.red_found = False
 
         # Blue
         contours, hierarchy = cv2.findContours(blue_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
@@ -246,6 +242,7 @@ class colourIdentifier:
                 # Then alter the values of any flags
 
                 self.blue_found = True
+                                  
                 self.node.get_logger().info('Blue is found')
             else:
                 self.blue_found = False   
@@ -270,7 +267,7 @@ class colourIdentifier:
 
                 # Then alter the values of any flags
 
-                self.green_found = True
+                self.green_found = True  
                 self.node.get_logger().info('Green is found')
 
             else:
@@ -297,7 +294,7 @@ class colourIdentifier:
                 end_pt = (x+w, y+h)
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
                 
-                self.red_found = True
+                self.red_found = True                    
                 self.node.get_logger().info('Red is found')
             else:
                 self.red_found = False   
@@ -318,6 +315,8 @@ class Explorer(Node):
         self.green_found = False
 
         self.count = 0
+        self.rotation_steps = 0
+        self.blue_pose = None
 
         self.create_timer(0.1, self.robot_check)
         
@@ -327,56 +326,62 @@ class Explorer(Node):
         self.red_found = self.colourIdentifier.red_found
 
         self.count = sum([self.blue_found, self.green_found, self.red_found])
-
-    '''
-    def go_to_blue(self, x, y, yaw):
-        # use cv.moment to make it go closer to blue contour
-        # rotate until find blue
-        self.go_to_pose.send_goal(x, y, yaw)
-        return
-
-    #def checking_colours(self):
-        #self.node.get_logger().info('Looking for colours')
-        #self.colourIdentifier.find_colour()
-    '''   
+   
     def robot_check(self):
         self.update_colour_flags()
         if self.state == "go to corner":
-            self.node.get_logger().info('Starting Position')
-            self.x_val = -9.8
-            self.y_val = -15.0
-            self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
-            self.state = "scanning"
+            self.get_logger().info('Starting Position')
 
+            if not hasattr(self, "sent to corner"):
+                self.x_val = -9.8
+                self.y_val = -15.0
+                self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
+                self.sent_corner_goal = True
+
+                self.current_x = self.x_val
+                self.current_y = self.y_val
+
+                self.sent_corner_goal = True
             
+            elif self.got_to_pose.goal_done:
+                self.state = "scanning"
         
         elif self.state == "scanning":
-            # loop through block flags, as it rotates
-            #   recording locations
-            # rotate by small degree until certain count
-            self.node.get_logger().info('Scanning')
             self.motion.rotate()
-            
-            if self.count < 3:                
-                
-                #smth to find other colours      
-                return
+            self.rotation_steps += 1
+        
+            # store blue pose when first seen
+            if self.blue_found and self.blue_pose is None:
+                self.blue_pose = {
+                    "x": self.current_x,
+                    "y": self.current_y,
+                    "yaw": self.rotation_steps * 0.0628  
+                }
+                self.get_logger().info("Stored blue direction")
 
             if self.count == 3 and self.blue_found:
-                self.node.get_logger().info('All colours found')
+                self.get_logger().info('All colours found')
                 self.state = "go to blue"
-                self.go_to_pose.send_goal(-4.7, -11.5, 0.0024)
+                #self.go_to_pose.send_goal(-4.7, -11.5, 0.0024)
                 return
             
         elif self.state == "go to blue":
-            #get location when it last saw blue
-            # position x
-            # position y
-            # self.go_to_pose.send_goal(position x, position y, 0.0024)
-            return
-        elif self.state == "stop":
-            self.motion.stop()
-            return
+
+            if self.blue_pose is None:
+                self.get_logger().info("no blue position")
+                return
+                
+            if not hasattr(self, "sent_blue_goal"):
+                x_blue = self.blue_pose["x"]
+                y_blue = self.blue_pose["y"]
+                yaw_blue = self.blue_pose["yaw"]
+        
+                self.go_to_pose.send_goal(x_blue, y_blue, yaw_blue)
+                self.sent_blue_goal = True
+                
+            elif self.go_to_pose.goal_done:
+                self.get_logger().info("Reached blue view position")
+                self.motion.stop()
             
     
 # Defining main()
