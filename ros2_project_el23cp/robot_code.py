@@ -115,7 +115,7 @@ class GoToPose:
         goal_handle = future.result()
         if not goal_handle.accepted:
             self.node.get_logger().info('Goal rejected')
-            self.goal_done = True
+            self.goal_done = False
             return
 
         self.node.get_logger().info('Goal accepted')
@@ -224,7 +224,7 @@ class colourIdentifier:
 
                 self.blue_cx = cx
                 self.image_width = image.shape[1]
-                colour = (0,0,0)
+                colour = (255,0,0)
                 thickness = 3
 
                 start_pt = (x,y)
@@ -233,12 +233,8 @@ class colourIdentifier:
 
                 if not self.blue_found:
                     self.node.get_logger().info('Blue is found')
-                
-                self.blue_found = True
+                    self.blue_found = True
                                   
-            cv2.imshow('camera_Feed', image)
-            cv2.resizeWindow('camera_Feed',320,240)
-            cv2.waitKey(3)   
 
         #GREEN
         contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
@@ -249,7 +245,7 @@ class colourIdentifier:
 
                 x, y, w, h = cv2.boundingRect(c)
 
-                colour = (0,0,0)
+                colour = (120,0,120)
                 thickness = 3
 
                 start_pt = (x,y)
@@ -257,9 +253,10 @@ class colourIdentifier:
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
 
                 if not self.green_found:
+                    self.node.get_logger().info('Green is found')
                     self.green_found = True  
                 
-                self.node.get_logger().info('Green is found')
+                #self.node.get_logger().info('Green is found')
  
 
         #Show the resultant images you have created. You can show all of them or just the end result if you wish to.
@@ -276,7 +273,7 @@ class colourIdentifier:
                 #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
                 x, y, w, h = cv2.boundingRect(c)
 
-                colour = (0,0,0)
+                colour = (120,0,120)
                 thickness = 3
 
                 start_pt = (x,y)
@@ -284,10 +281,13 @@ class colourIdentifier:
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
                 
                 if not self.red_found:
+                    self.node.get_logger().info('Red is found')
                     self.red_found = True                    
-                self.node.get_logger().info('Red is found')
+                
 
-        
+        cv2.imshow('camera_Feed', image)
+        cv2.resizeWindow('camera_Feed',320,240)
+        cv2.waitKey(3)        
 
 class Explorer(Node):
     def __init__(self):
@@ -348,7 +348,7 @@ class Explorer(Node):
                 }
                 self.get_logger().info("Stored blue direction")
 
-            if self.count == 3 and self.blue_found:
+            if self.red_found and self.green_found and self.blue_found:
                 self.get_logger().info('All colours found')
                 self.motion.stop()
                 self.state = "go to blue"
@@ -357,32 +357,21 @@ class Explorer(Node):
             
         elif self.state == "go to blue":
 
-            if self.blue_pose is None:
-                self.get_logger().info("no blue position")
-                return
-                
-            if not hasattr(self, "sent_blue_goal"):
-                x_blue = self.blue_pose["x"]
-                y_blue = self.blue_pose["y"]
-                yaw_blue = self.blue_pose["yaw"]
-        
-                self.go_to_pose.send_goal(x_blue, y_blue, yaw_blue)
-                self.sent_blue_goal = True
-                
-            elif self.go_to_pose.goal_done:
-                self.get_logger().info("Reached blue view position")
-                self.motion.stop()
 
-            if self.blue_found:
-                blue_centre = self.image_width/2
-                error = self.blue_cx - blue_centre
+            cx= self.colourIdentifier.blue_cx
+            width = self.colourIdentifier.image_width
 
-                twist = Twist()
+            blue_centre = width/2
+            error = cx - blue_centre
 
-                if abs(error) > 20:
-                    twist.angular.z = -0.002*error
-                else:
-                    self.motion.walk_forward()
+            twist = Twist()
+
+            if abs(error) > 20:
+                twist.angular.z = -0.002*error
+            else:
+                twist.linear.x = 0.2
+            
+            self.motion.publisher.publish(twist)
 
                 
             
