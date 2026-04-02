@@ -31,9 +31,6 @@ from geometry_msgs.msg import Vector3
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
-'''
-___________ FORWARD_THEN_SCANNING ___________
-'''
 class Motion:
     def __init__(self, node):
         #super().__init__('firstwalker')
@@ -58,7 +55,7 @@ class Motion:
 
     def rotate(self):
         desired_velocity = Twist()
-        desired_velocity.linear.x = 0.0  # Forward with 0.2 m/s
+        desired_velocity.linear.x = 0.0  
         desired_velocity.angular.z = 0.628  # Rotate at 0.2 deg
         
         self.publisher.publish(desired_velocity)
@@ -177,19 +174,20 @@ class colourIdentifier:
         contours, hierarchy = cv2.findContours(blue_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
         
         if len(contours) > 0:
+            
             c = max(contours, key=cv2.contourArea)
-
             M = cv2.moments(c)
             cx, cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
 
             if cv2.contourArea(c) > 500:
+                
                 x, y, w, h = cv2.boundingRect(c)
 
                 self.blue_cx = cx
                 self.image_width = image.shape[1]
+                
                 colour = (255,0,0)
                 thickness = 3
-
                 start_pt = (x,y)
                 end_pt = (x+w, y+h)
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
@@ -199,20 +197,17 @@ class colourIdentifier:
                     self.blue_found = True
                 
                 self.blue_area = cv2.contourArea(c)
-                                  
 
         #GREEN
         contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
         if len(contours) > 0:
+            
             c = max(contours, key=cv2.contourArea)
-
             if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
 
                 x, y, w, h = cv2.boundingRect(c)
-
                 colour = (120,0,120)
                 thickness = 3
-
                 start_pt = (x,y)
                 end_pt = (x+w, y+h)
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
@@ -223,17 +218,14 @@ class colourIdentifier:
 
         #RED
         contours, hierarchy = cv2.findContours(red_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
-
         if len(contours) > 0:
+            
             c = max(contours, key=cv2.contourArea)
-
             if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
 
                 x, y, w, h = cv2.boundingRect(c)
-
                 colour = (120,0,120)
                 thickness = 3
-
                 start_pt = (x,y)
                 end_pt = (x+w, y+h)
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
@@ -280,7 +272,7 @@ class Explorer(Node):
         if self.state == "go to corner":
             
             if not hasattr(self, "sent_corner_goal"):
-                self.get_logger().info('Starting Position')
+                self.get_logger().info('Going to starting position')
                 self.x_val = -9.8
                 self.y_val = -15.0
                 self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
@@ -311,8 +303,8 @@ class Explorer(Node):
                 self.get_logger().info('All colours found')
                 self.motion.stop()
                 self.state = "go to blue"
-                #self.go_to_pose.send_goal(-4.7, -11.5, 0.0024)
                 return
+            #else:
             
         elif self.state == "go to blue":
 
@@ -336,7 +328,6 @@ class Explorer(Node):
                     print("Not close enough")
                     self.too_close = True
                     twist.linear.x = 0.2
-
                 elif area > 175000:
                     print("Too close")
                     self.too_close = False
@@ -350,10 +341,9 @@ class Explorer(Node):
     
 # Defining main()
 def main(args=None):
-    rclpy.init(args=args)
     
+    rclpy.init(args=args)    
     explorer = Explorer()
-      
     rclpy.spin(explorer)
 
 if __name__ == '__main__':
