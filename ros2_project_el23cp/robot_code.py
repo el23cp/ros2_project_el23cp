@@ -248,17 +248,23 @@ class Explorer(Node):
         self.motion = Motion(self)
         self.colourIdentifier = colourIdentifier(self)
 
-        self.state = "go to corner"
+        self.state = "scanning"
 
         self.blue_found = False
         self.red_found = False
         self.green_found = False
+
+        self.corner_1 = False
+        self.corner_2 = False
+        self.corner_3 = False        
 
         self.count = 0
         self.rotation_steps = 0
         self.blue_pose = None
 
         self.create_timer(0.1, self.robot_check)
+        self.sent_corner_goal = False
+            
         
     def update_colour_flags(self):
         self.blue_found = self.colourIdentifier.blue_found
@@ -269,20 +275,34 @@ class Explorer(Node):
    
     def robot_check(self):
         self.update_colour_flags()
+        
         if self.state == "go to corner":
-            
-            if not hasattr(self, "sent_corner_goal"):
-                self.get_logger().info('Going to starting position')
-                self.x_val = -9.8
-                self.y_val = -15.0
-                self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
-                self.sent_corner_goal = True
+            #self.sent_corner_goal = False
 
-                self.current_x = self.x_val
-                self.current_y = self.y_val
-
-                self.sent_corner_goal = True
-            
+            if not self.sent_corner_goal:
+                if not hasattr(self, "sent_corner_goal"):
+                    self.get_logger().info('Going to corner')
+    
+                    if not self.corner_1:
+                        self.x_val = -9.8
+                        self.y_val = -15.0
+                        self.corner_1 = True
+                        
+                    elif not self.corner_2:
+                        self.x_val = -9.8 # Change to corner 2 coordinates
+                        self.y_val = -15.0 
+                        self.corner_2 = True
+                        
+                    elif not self.corner_3:
+                        self.x_val = -9.8 # Change to corner 3 coordinates
+                        self.y_val = -15.0 
+                        self.corner_3 = True
+                        
+                    self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
+                    self.current_x = self.x_val
+                    self.current_y = self.y_val
+                    self.sent_corner_goal = True
+                
             elif self.go_to_pose.goal_done:
                 self.state = "scanning"
         
@@ -304,7 +324,9 @@ class Explorer(Node):
                 self.motion.stop()
                 self.state = "go to blue"
                 return
-            #else:
+            else:
+                self.state = "go to corner"
+                
             
         elif self.state == "go to blue":
 
