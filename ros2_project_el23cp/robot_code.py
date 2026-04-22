@@ -289,17 +289,17 @@ class Explorer(Node):
 
                 self.motion.stop()
 
-                if not self.corner_1 and not self.corner_2 and not self.corner_3:
+                if not self.corner_1:
                     self.x_val = -8.5
                     self.y_val = -13.0
                     self.corner_1 = True
                     
-                elif not self.corner_2 and self.corner_1 and not self.corner_3:
+                elif not self.corner_2:
                     self.x_val = 7.0 
                     self.y_val = 12.0 
                     self.corner_2 = True
                     
-                elif not self.corner_3 and self.corner_2 and self.corner_1:
+                elif not self.corner_3:
                     self.x_val = -10.0
                     self.y_val = 3.0 
                     self.corner_3 = True
@@ -323,8 +323,8 @@ class Explorer(Node):
             #self.get_logger().info("Scanning")
 
 
-            if self.rotation_steps < 50:
-                return
+            
+                
 
             self.motion.stop()
             self.rotation_steps = 0
@@ -337,12 +337,12 @@ class Explorer(Node):
                     "yaw": self.rotation_steps * 0.0628  
                 }
                 self.get_logger().info("Stored blue direction")
-
-            if self.red_found and self.green_found and self.blue_found:
-                self.get_logger().info('All colours found')
-                self.motion.stop()
-                self.state = "go to blue"
-                return
+            if self.rotation_steps < 50:
+                if self.red_found and self.green_found and self.blue_found:
+                    self.get_logger().info('All colours found')
+                    self.motion.stop()
+                    self.state = "go to blue"
+                    return
             else:
                 self.state = "go to corner"
                 return
