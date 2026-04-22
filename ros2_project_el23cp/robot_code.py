@@ -280,36 +280,48 @@ class Explorer(Node):
             #self.sent_corner_goal = False
 
             if not self.sent_corner_goal:
-                if not hasattr(self, "sent_corner_goal"):
-                    self.get_logger().info('Going to corner')
-    
-                    if not self.corner_1:
-                        self.x_val = -9.8
-                        self.y_val = -15.0
-                        self.corner_1 = True
-                        
-                    elif not self.corner_2:
-                        self.x_val = -9.8 # Change to corner 2 coordinates
-                        self.y_val = -15.0 
-                        self.corner_2 = True
-                        
-                    elif not self.corner_3:
-                        self.x_val = -9.8 # Change to corner 3 coordinates
-                        self.y_val = -15.0 
-                        self.corner_3 = True
-                        
-                    self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
-                    self.current_x = self.x_val
-                    self.current_y = self.y_val
-                    self.sent_corner_goal = True
+                #if not hasattr(self, "sent_corner_goal"):
+                self.get_logger().info('Going to corner')
+
+                if not self.corner_1:
+                    self.x_val = -8.5
+                    self.y_val = -13.0
+                    self.corner_1 = True
+                    
+                elif not self.corner_2:
+                    self.x_val = 7.0 
+                    self.y_val = 12.0 
+                    self.corner_2 = True
+                    
+                elif not self.corner_3:
+                    self.x_val = -10.0
+                    self.y_val = 3.0 
+                    self.corner_3 = True
+
+                else:
+                    self.get_logger().info("All corners explored")
+                    
+                self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
+                self.current_x = self.x_val
+                self.current_y = self.y_val
+                self.sent_corner_goal = True
                 
             elif self.go_to_pose.goal_done:
+                self.sent_corner_goal = False
                 self.state = "scanning"
         
         elif self.state == "scanning":
             self.motion.rotate()
             self.rotation_steps += 1
-        
+            self.get_logger().info("Scanning")
+
+
+            if self.rotation_steps < 30:
+                return
+
+            self.motion.stop()
+            self.rotation_steps = 0
+
             # store blue pose when first seen
             if self.blue_found and self.blue_pose is None:
                 self.blue_pose = {
@@ -331,6 +343,7 @@ class Explorer(Node):
         elif self.state == "go to blue":
 
             if not hasattr(self.colourIdentifier, "blue_cx"):
+                self.motion.rotate()
                 return
             
             cx= self.colourIdentifier.blue_cx

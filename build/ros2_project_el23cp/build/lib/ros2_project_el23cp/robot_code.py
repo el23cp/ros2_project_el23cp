@@ -31,9 +31,6 @@ from geometry_msgs.msg import Vector3
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
-'''
-___________ FORWARD_THEN_SCANNING ___________
-'''
 class Motion:
     def __init__(self, node):
         #super().__init__('firstwalker')
@@ -58,7 +55,7 @@ class Motion:
 
     def rotate(self):
         desired_velocity = Twist()
-        desired_velocity.linear.x = 0.0  # Forward with 0.2 m/s
+        desired_velocity.linear.x = 0.0  
         desired_velocity.angular.z = 0.628  # Rotate at 0.2 deg
         
         self.publisher.publish(desired_velocity)
@@ -177,19 +174,20 @@ class colourIdentifier:
         contours, hierarchy = cv2.findContours(blue_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
         
         if len(contours) > 0:
+            
             c = max(contours, key=cv2.contourArea)
-
             M = cv2.moments(c)
             cx, cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
 
             if cv2.contourArea(c) > 500:
+                
                 x, y, w, h = cv2.boundingRect(c)
 
                 self.blue_cx = cx
                 self.image_width = image.shape[1]
+                
                 colour = (255,0,0)
                 thickness = 3
-
                 start_pt = (x,y)
                 end_pt = (x+w, y+h)
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
@@ -199,20 +197,17 @@ class colourIdentifier:
                     self.blue_found = True
                 
                 self.blue_area = cv2.contourArea(c)
-                                  
 
         #GREEN
         contours, hierarchy = cv2.findContours(green_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
         if len(contours) > 0:
+            
             c = max(contours, key=cv2.contourArea)
-
             if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
 
                 x, y, w, h = cv2.boundingRect(c)
-
                 colour = (120,0,120)
                 thickness = 3
-
                 start_pt = (x,y)
                 end_pt = (x+w, y+h)
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
@@ -223,17 +218,14 @@ class colourIdentifier:
 
         #RED
         contours, hierarchy = cv2.findContours(red_mask, mode = cv2.RETR_TREE, method = cv2.CHAIN_APPROX_SIMPLE )
-
         if len(contours) > 0:
+            
             c = max(contours, key=cv2.contourArea)
-
             if cv2.contourArea(c) > 500: #<What do you think is a suitable area?>
 
                 x, y, w, h = cv2.boundingRect(c)
-
                 colour = (120,0,120)
                 thickness = 3
-
                 start_pt = (x,y)
                 end_pt = (x+w, y+h)
                 cv2.rectangle(image, start_pt, end_pt, colour, thickness)
@@ -244,7 +236,7 @@ class colourIdentifier:
                 
         cv2.namedWindow('camera_Feed',cv2.WINDOW_NORMAL)
         cv2.imshow('camera_Feed', image)
-        #cv2.resizeWindow('camera_Feed',320,240)
+        cv2.resizeWindow('camera_Feed',320,240)
         cv2.waitKey(3)
 
 
@@ -256,17 +248,23 @@ class Explorer(Node):
         self.motion = Motion(self)
         self.colourIdentifier = colourIdentifier(self)
 
-        self.state = "go to corner"
+        self.state = "scanning"
 
         self.blue_found = False
         self.red_found = False
         self.green_found = False
+
+        self.corner_1 = False
+        self.corner_2 = False
+        self.corner_3 = False        
 
         self.count = 0
         self.rotation_steps = 0
         self.blue_pose = None
 
         self.create_timer(0.1, self.robot_check)
+        self.sent_corner_goal = False
+            
         
     def update_colour_flags(self):
         self.blue_found = self.colourIdentifier.blue_found
@@ -277,27 +275,51 @@ class Explorer(Node):
    
     def robot_check(self):
         self.update_colour_flags()
+        
         if self.state == "go to corner":
-            
-            if not hasattr(self, "sent_corner_goal"):
-                self.get_logger().info('Starting Position')
-                self.x_val = -9.8
-                self.y_val = -15.0
-                self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
-                self.sent_corner_goal = True
+            #self.sent_corner_goal = False
 
+            if not self.sent_corner_goal:
+                #if not hasattr(self, "sent_corner_goal"):
+                self.get_logger().info('Going to corner')
+
+                if not self.corner_1:
+                    self.x_val = -8.5
+                    self.y_val = -13.0
+                    self.corner_1 = True
+                    
+                elif not self.corner_2:
+                    self.x_val = 7.0 
+                    self.y_val = 12.0 
+                    self.corner_2 = True
+                    
+                elif not self.corner_3:
+                    self.x_val = -10.0
+                    self.y_val = 3.0 
+                    self.corner_3 = True
+
+                else:
+                    self.get_logger().info("All corners explored")
+                    
+                self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
                 self.current_x = self.x_val
                 self.current_y = self.y_val
-
                 self.sent_corner_goal = True
-            
+                
             elif self.go_to_pose.goal_done:
+                self.sent_corner_goal = False
                 self.state = "scanning"
         
         elif self.state == "scanning":
             self.motion.rotate()
             self.rotation_steps += 1
-        
+
+            if self.rotation_steps < 30:
+                return
+
+            self.motion.stop()
+            self.rotation_steps = 0
+
             # store blue pose when first seen
             if self.blue_found and self.blue_pose is None:
                 self.blue_pose = {
@@ -311,17 +333,21 @@ class Explorer(Node):
                 self.get_logger().info('All colours found')
                 self.motion.stop()
                 self.state = "go to blue"
-                #self.go_to_pose.send_goal(-4.7, -11.5, 0.0024)
                 return
+            else:
+                self.state = "go to corner"
+                
             
         elif self.state == "go to blue":
 
             if not hasattr(self.colourIdentifier, "blue_cx"):
+                self.motion.rotate()
                 return
             
             cx= self.colourIdentifier.blue_cx
             width = self.colourIdentifier.image_width
             area = self.colourIdentifier.blue_area
+            self.get_logger().info(f'Area: {area}')
 
             blue_centre = width/2
             error = cx - blue_centre
@@ -331,13 +357,12 @@ class Explorer(Node):
             if abs(error) > 20:
                 twist.angular.z = -0.002*error
             else:
-                if area < 2900:
-                    print("Too close")
+                if area < 170000:
+                    print("Not close enough")
                     self.too_close = True
                     twist.linear.x = 0.2
-
-                elif area > 3100:
-                    print("Almost there")
+                elif area > 175000:
+                    print("Too close")
                     self.too_close = False
                     twist.linear.x = -0.2
                 else:
@@ -349,10 +374,9 @@ class Explorer(Node):
     
 # Defining main()
 def main(args=None):
-    rclpy.init(args=args)
     
+    rclpy.init(args=args)    
     explorer = Explorer()
-      
     rclpy.spin(explorer)
 
 if __name__ == '__main__':
