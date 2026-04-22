@@ -287,17 +287,19 @@ class Explorer(Node):
                 #if not hasattr(self, "sent_corner_goal"):
                 self.get_logger().info('Going to corner')
 
-                if not self.corner_1:
+                self.motion.stop()
+
+                if not self.corner_1 and not self.corner_2 and not self.corner_3:
                     self.x_val = -8.5
                     self.y_val = -13.0
                     self.corner_1 = True
                     
-                elif not self.corner_2:
+                elif not self.corner_2 and self.corner_1 and not self.corner_3:
                     self.x_val = 7.0 
                     self.y_val = 12.0 
                     self.corner_2 = True
                     
-                elif not self.corner_3:
+                elif not self.corner_3 and self.corner_2 and self.corner_1:
                     self.x_val = -10.0
                     self.y_val = 3.0 
                     self.corner_3 = True
@@ -343,6 +345,7 @@ class Explorer(Node):
                 return
             else:
                 self.state = "go to corner"
+                return
                 
             
         elif self.state == "go to blue":

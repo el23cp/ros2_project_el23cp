@@ -177,6 +177,10 @@ class colourIdentifier:
             
             c = max(contours, key=cv2.contourArea)
             M = cv2.moments(c)
+
+            if M['m00'] == 0:
+                return
+            
             cx, cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
 
             if cv2.contourArea(c) > 500:
@@ -283,6 +287,8 @@ class Explorer(Node):
                 #if not hasattr(self, "sent_corner_goal"):
                 self.get_logger().info('Going to corner')
 
+                self.motion.stop()
+
                 if not self.corner_1:
                     self.x_val = -8.5
                     self.y_val = -13.0
@@ -300,11 +306,12 @@ class Explorer(Node):
 
                 else:
                     self.get_logger().info("All corners explored")
+                    return
                     
                 self.go_to_pose.send_goal(self.x_val, self.y_val, 0.0024)
                 self.current_x = self.x_val
                 self.current_y = self.y_val
-                self.sent_corner_goal = True
+                #self.sent_corner_goal = True
                 
             elif self.go_to_pose.goal_done:
                 self.sent_corner_goal = False
@@ -313,8 +320,10 @@ class Explorer(Node):
         elif self.state == "scanning":
             self.motion.rotate()
             self.rotation_steps += 1
+            #self.get_logger().info("Scanning")
 
-            if self.rotation_steps < 30:
+
+            if self.rotation_steps < 50:
                 return
 
             self.motion.stop()
@@ -336,6 +345,7 @@ class Explorer(Node):
                 return
             else:
                 self.state = "go to corner"
+                return
                 
             
         elif self.state == "go to blue":
@@ -347,7 +357,7 @@ class Explorer(Node):
             cx= self.colourIdentifier.blue_cx
             width = self.colourIdentifier.image_width
             area = self.colourIdentifier.blue_area
-            self.get_logger().info(f'Area: {area}')
+            #self.get_logger().info(f'Area: {area}')
 
             blue_centre = width/2
             error = cx - blue_centre
@@ -357,11 +367,11 @@ class Explorer(Node):
             if abs(error) > 20:
                 twist.angular.z = -0.002*error
             else:
-                if area < 170000:
+                if area < 315000:
                     print("Not close enough")
                     self.too_close = True
                     twist.linear.x = 0.2
-                elif area > 175000:
+                elif area > 325000:
                     print("Too close")
                     self.too_close = False
                     twist.linear.x = -0.2
